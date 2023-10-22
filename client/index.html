@@ -11,15 +11,32 @@
     </style>
 </head>
 <body>
+    <h3 id="timerContainer" class="hide">TIME REMAINING: <span id="timer"></span></h3>
     <div id="connect">
         <h1>CONNECTING TO SERVER...</h1>
     </div>
     <div id="name" class="hide">
         <form>
             <p>Please enter a username:</p>
-            <input type="text" />
-            <button type="submit">Submit</button>
+            <input id="usernameInput" type="text" />
+            <button id="submitName" type="submit">Submit</button>
         </form>
+    </div>
+    <div id="waitingGame" class="hide">
+        <h1>WAITING FOR GAME TO BEGIN...</h1>
+    </div>
+    <div id="acronym" class="hide">
+        <h1>Your acronym is...</h1>
+        <h2 id="acroLetters"></h2>
+
+        <form id="acroSubmitForm">
+            <input id="acronymInput" type="text" placeholder="Enter your expanded acronym!">
+            <button id="submitEntry" type="submit">Submit entry</button>
+        </form>
+        <div id="waitingForEntries" class="hide">
+            <p>Waiting for all entires to be submitted</p>
+            <p>You submitted: <span id="myEntry"></span></p>
+        </div>
     </div>
 
     <script type="module" src="src/main.js"></script>

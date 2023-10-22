@@ -1,8 +1,12 @@
+import type { ServerMessages } from './message.ts';
+
 export class Player {
+  #id = crypto.randomUUID();
   #socket: WebSocket;
   #hostname: string;
   #name: string;
   #submission: string[] = [];
+  #votedFor: string = '';
 
   constructor(socket: WebSocket, hostname: string) {
     this.#socket = socket;
@@ -10,8 +14,8 @@ export class Player {
     this.#hostname = hostname;
   }
 
-  sendMessage(message: string) {
-    this.#socket.send(message);
+  sendMessage(message: ServerMessages) {
+    this.#socket.send(JSON.stringify(message));
   }
 
   setSubmission(submission: string[]) {
@@ -34,7 +38,11 @@ export class Player {
     return this.#name;
   }
 
-  isReady(): boolean {
+  isReadyToPlay(): boolean {
     return !!this.#name;
+  }
+
+  hasVoted(): boolean {
+    return !!this.#votedFor;
   }
 }
