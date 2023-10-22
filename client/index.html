@@ -4,9 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acro-thing</title>
+    <style>
+        .hide {
+            display: none;;
+        }
+    </style>
 </head>
 <body>
+    <div id="connect">
+        <h1>CONNECTING TO SERVER...</h1>
+    </div>
+    <div id="name" class="hide">
+        <form>
+            <p>Please enter a username:</p>
+            <input type="text" />
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
     <script type="module" src="src/main.js"></script>
-    <div class="message"></div>
 </body>
 </html>
