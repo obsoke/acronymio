@@ -26,6 +26,14 @@ export class Player {
     return this.#hostname;
   }
 
+  setName(name: string) {
+    this.#name = name;
+  }
+
+  getName(): string {
+    return this.#name;
+  }
+
   isReady(): boolean {
     return !!this.#name;
   }
