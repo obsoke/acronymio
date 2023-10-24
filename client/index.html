@@ -6,14 +6,15 @@
     <title>Acro-thing</title>
     <style>
         .hide {
-            display: none;;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h3 id="timerContainer" class="hide">TIME REMAINING: <span id="timer"></span></h3>
+    <h1>ACRONYM</h1>
+    <p id="timerContainer" class="hide">TIME REMAINING: <span id="timer"></span></p>
     <div id="connect">
-        <h1>CONNECTING TO SERVER...</h1>
+        <h2>CONNECTING TO SERVER...</h2>
     </div>
     <div id="name" class="hide">
         <form>
@@ -23,11 +24,11 @@
         </form>
     </div>
     <div id="waitingGame" class="hide">
-        <h1>WAITING FOR GAME TO BEGIN...</h1>
+        <h2>WAITING FOR GAME TO BEGIN...</h2>
     </div>
     <div id="acronym" class="hide">
-        <h1>Your acronym is...</h1>
-        <h2 id="acroLetters"></h2>
+        <h2>Your acronym is...</h2>
+        <h3 id="acroLetters"></h3>
 
         <form id="acroSubmitForm">
             <input id="acronymInput" type="text" placeholder="Enter your expanded acronym!">
@@ -37,6 +38,16 @@
             <p>Waiting for all entires to be submitted</p>
             <p>You submitted: <span id="myEntry"></span></p>
         </div>
+    </div>
+    <div id="voting" class="hide">
+        <h2>Vote for your favourite acronym!</h2>
+        <ul id="entryList"></ul>
+        <div id="waitingForVotes" class="hide">
+            <p>Waiting for all votes to be submitted</p>
+        </div>
+    </div>
+    <div id="winner" class="hide">
+        <h2>The winner is <span id="winnerName"></span></h2>
     </div>
 
     <script type="module" src="src/main.js"></script>

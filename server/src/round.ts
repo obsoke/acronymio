@@ -1,5 +1,12 @@
+// import { maxBy } from '$std/collections/max_by.ts';
+import { maxBy } from 'https://deno.land/std@0.204.0/collections/max_by.ts';
 import { Player } from './player.ts';
-import { ServerBeginGameMessage, ServerUpdateTimerMessage } from './message.ts';
+import {
+  ServerBeginGameMessage,
+  ServerBeginVotingMessage,
+  ServerUpdateTimerMessage,
+  ServerWinnerMessage,
+} from './message.ts';
 
 /*
  * What are the game states?
@@ -16,10 +23,14 @@ import { ServerBeginGameMessage, ServerUpdateTimerMessage } from './message.ts';
  */
 export type GameState = 'waiting' | 'acronym' | 'voting' | 'gameover';
 
+export type Entry = { uuid: string; entry: string };
+
+type Votes = Record<string, number>;
+
 // Game constants
-const NUM_READY_PLAYERS = 1; // NOTE: This is set to 1 for testing; should be 3 in prod
+const NUM_READY_PLAYERS = 8; // NOTE: This is set to 1 for testing; should be 3 in prod
 const ACRO_ROUND_TIME = 60; // seconds
-const VOTE_ROUND_TIME = 60; // seconds
+const VOTE_ROUND_TIME = 30; // seconds
 
 /**
  * A `Round` is a single game of Acronymio. It holds all data requires to run the game,
@@ -28,7 +39,6 @@ const VOTE_ROUND_TIME = 60; // seconds
 export class Round {
   #state: GameState = 'waiting';
   #players: Player[] = [];
-
   #roundTimer = 0;
   #roundTime = 0;
 
@@ -44,10 +54,8 @@ export class Round {
     this.#players.push(player);
   }
 
-  removePlayer(playerHostname: string) {
-    this.#players = this.#players.filter((p) =>
-      p.getHostname() != playerHostname
-    );
+  removePlayer(playerId: string) {
+    this.#players = this.#players.filter((p) => p.getId() != playerId);
   }
 
   getPlayerCount(): number {
@@ -60,6 +68,14 @@ export class Round {
     );
   }
 
+  getAllEntries(): Entry[] {
+    const entries: Entry[] = [];
+    for (const player of this.#players) {
+      entries.push({ uuid: player.getId(), entry: player.getSubmission() });
+    }
+    return entries;
+  }
+
   checkForReadyGame(readyPlayerThreshold: number): boolean {
     const readyPlayerCount = this.#players.reduce(
       (prev, curr) => curr.isReadyToPlay() ? prev + 1 : prev,
@@ -69,21 +85,8 @@ export class Round {
     return readyPlayerCount >= readyPlayerThreshold;
   }
 
-  beginRound() {
-    // TODO: Generate acronym
-    const acronym = ['A', 'B'];
-
-    for (const player of this.#players) {
-      const msg: ServerBeginGameMessage = {
-        type: 'gameStart',
-        acronym,
-        timeLeft: ACRO_ROUND_TIME,
-      };
-
-      player.sendMessage(msg);
-    }
-
-    this.#roundTime = ACRO_ROUND_TIME;
+  startTimer(initialTime: number) {
+    this.#roundTime = initialTime;
     this.#roundTimer = setInterval(() => {
       this.#roundTime -= 1;
 
@@ -96,15 +99,71 @@ export class Round {
         player.sendMessage(msg);
       }
     }, 1000);
+  }
+
+  beginRound() {
+    // TODO: Generate acronym
+    const acronym = ['S', 'E', 'B', 'T'];
+
+    for (const player of this.#players) {
+      const msg: ServerBeginGameMessage = {
+        type: 'gameStart',
+        acronym,
+        timeLeft: ACRO_ROUND_TIME,
+      };
+
+      player.sendMessage(msg);
+    }
+
+    this.startTimer(ACRO_ROUND_TIME);
     this.#state = 'acronym';
   }
 
   beginVoting() {
+    // We want to send all entries EXCEPT the one the user has submitted to each user
+    const allEntries = this.getAllEntries();
+    for (const player of this.#players) {
+      const msg: ServerBeginVotingMessage = {
+        type: 'beginVoting',
+        entries: allEntries.filter((e) => e.uuid !== player.getId()),
+        timeLeft: ACRO_ROUND_TIME,
+      };
+
+      player.sendMessage(msg);
+    }
+
+    this.startTimer(VOTE_ROUND_TIME);
     this.#state = 'voting';
   }
 
   findWinner() {
-    // TODO: Find the winner
+    const votes = this.#players.reduce((results, player) => {
+      const id = player.getVote();
+      if (!results[id]) {
+        results[id] = 0;
+      }
+
+      results[id] += 1;
+
+      return results;
+    }, {} as Record<string, number>);
+
+    const voteArray = Object.entries(votes);
+    const winningEntry = maxBy(voteArray, (v) => v[1]);
+    const winningPlayer = this.#players.find((p) =>
+      p.getId() === winningEntry![0]
+    );
+
+    const msg: ServerWinnerMessage = {
+      type: 'winner',
+      winner: winningPlayer!.getName(),
+    };
+
+    for (const player of this.#players) {
+      player.sendMessage(msg);
+    }
+
+    this.#state = 'gameover';
   }
 
   gameLoop() {
@@ -122,6 +181,13 @@ export class Round {
         }
         break;
       case 'acronym': {
+        // check if round is over via timer
+        if (this.#roundTime <= 0) {
+          clearInterval(this.#roundTimer);
+          this.beginVoting();
+        }
+
+        // check if all entries are in
         const receivedAllEntries = this.#players.every((p) =>
           p.getSubmission().length > 0
         );
@@ -132,6 +198,12 @@ export class Round {
         break;
       }
       case 'voting': {
+        // check if round is over via timer
+        if (this.#roundTime <= 0) {
+          clearInterval(this.#roundTimer);
+          this.findWinner();
+        }
+
         const receivedAllVotes = this.#players.every((p) => p.hasVoted());
         if (receivedAllVotes) {
           clearInterval(this.#roundTimer);

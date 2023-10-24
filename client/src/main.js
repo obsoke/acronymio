@@ -1,4 +1,5 @@
-const socket = new WebSocket("ws://127.0.0.1:8000");
+// const socket = new WebSocket("ws://127.0.0.1:8080");
+const socket = new WebSocket("wss://acroserver.fly.dev");
 
 socket.addEventListener("open", (_) => {
   console.log(">> CONNECTED TO WEB SOCKET");
@@ -20,6 +21,12 @@ function processServerMessage(data) {
       waitForEntries(msg.entry);
     } else if (msg.type === "updateTimer") {
       updateTimer(msg.time);
+    } else if (msg.type === "beginVoting") {
+      startVotingPeriod(msg.entries, msg.timeLeft);
+    } else if (msg.type === "voteReceived") {
+      waitForVotes(msg.entry);
+    } else if (msg.type === "winner") {
+      endGame(msg.winner);
     } else {
       console.warn(`>> UNKOWN MESSAGE: ${data}`);
     }
@@ -92,5 +99,46 @@ function updateTimer(time) {
 }
 
 // VOTE STATE - VOTE ON WHICH ACRONYM YOU LIKE
+function startVotingPeriod(entries, timeLeft) {
+  document.querySelector("#acronym")?.classList.add("hide");
+
+  const list = document.querySelector("#entryList");
+  entries.forEach((e) => {
+    const li = document.createElement("li");
+    li.classList.add("voteEntry");
+    li.innerText = e.entry;
+    li.dataset.id = e.uuid;
+    list.appendChild(li);
+  });
+
+  document.addEventListener("click", (e) => {
+    if (e.target.matches("li.voteEntry")) {
+      const uuid = e.target.dataset.id;
+      const msg = {
+        type: "vote",
+        userVotedFor: uuid,
+      };
+
+      socket.send(JSON.stringify(msg));
+    }
+  });
+
+  updateTimer(timeLeft);
+
+  document.querySelector("#voting")?.classList.remove("hide");
+}
+
+function waitForVotes() {
+  document.querySelector("#entryList")?.classList.add("hide");
+  document.querySelector("#waitingForVotes")?.classList.remove("hide");
+}
 
 // END STATE - GAME RESULTS
+function endGame(winner) {
+  document.querySelector("#voting")?.classList.add("hide");
+  document.querySelector("#timerContainer")?.classList.add("hide");
+  const winnerEle = document.querySelector("#winnerName");
+  winnerEle.innerHTML = winner;
+
+  document.querySelector("#winner")?.classList.remove("hide");
+}

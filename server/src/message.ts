@@ -1,4 +1,5 @@
 import { Player } from './player.ts';
+import { Entry } from './round.ts';
 
 // MESSAGES FROM CLIENT TO SERVER
 export type ClientSetNameMessage = {
@@ -13,12 +14,7 @@ export type ClientSubmitAcronymMessage = {
 
 export type ClientVoteMessage = {
   type: 'vote';
-  selection: string[];
-};
-
-export type WinnerMessage = {
-  type: 'winner';
-  winner: string;
+  userVotedFor: string;
 };
 
 export type ClientMessages =
@@ -44,16 +40,35 @@ export type ServerEntryReceivedMessage = {
   success: boolean;
 };
 
+export type ServerBeginVotingMessage = {
+  type: 'beginVoting';
+  entries: Entry[];
+  timeLeft: number;
+};
+
+export type ServerVoteReceived = {
+  type: 'voteReceived';
+  success: boolean;
+};
+
 export type ServerUpdateTimerMessage = {
   type: 'updateTimer';
   time: number;
+};
+
+export type ServerWinnerMessage = {
+  type: 'winner';
+  winner: string;
 };
 
 export type ServerMessages =
   | ServerSetNameMessage
   | ServerBeginGameMessage
   | ServerEntryReceivedMessage
-  | ServerUpdateTimerMessage;
+  | ServerUpdateTimerMessage
+  | ServerBeginVotingMessage
+  | ServerVoteReceived
+  | ServerWinnerMessage;
 
 export function processMessage(data: string, sender: Player) {
   try {
@@ -71,11 +86,20 @@ export function processMessage(data: string, sender: Player) {
     } else if (msg.type === 'submitAcronym') {
       // TODO: Validate that submission matches the given acronym; if not, send an error to client
       console.log(`Received entry from ${sender.getName()}: ${msg.acronym}`);
-      sender.setSubmission(msg.acronym);
+      sender.setSubmission(msg.acronym.join(' '));
 
       const resp: ServerEntryReceivedMessage = {
         type: 'entryReceived',
         entry: msg.acronym,
+        success: true,
+      };
+      sender.sendMessage(resp);
+    } else if (msg.type === 'vote') {
+      const id = msg.userVotedFor;
+      sender.setVote(id);
+
+      const resp: ServerVoteReceived = {
+        type: 'voteReceived',
         success: true,
       };
       sender.sendMessage(resp);
