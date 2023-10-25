@@ -1,5 +1,4 @@
-// import { maxBy } from '$std/collections/max_by.ts';
-import { maxBy } from 'https://deno.land/std@0.204.0/collections/max_by.ts';
+import { maxBy } from 'std/collections/max_by.ts';
 import { Player } from './player.ts';
 import {
   ServerBeginGameMessage,
@@ -7,6 +6,7 @@ import {
   ServerUpdateTimerMessage,
   ServerWinnerMessage,
 } from './message.ts';
+import { generateAcronym } from './acronym.ts';
 
 /*
  * What are the game states?
@@ -28,9 +28,12 @@ export type Entry = { uuid: string; entry: string };
 type Votes = Record<string, number>;
 
 // Game constants
-const NUM_READY_PLAYERS = 8; // NOTE: This is set to 1 for testing; should be 3 in prod
+const NUM_READY_PLAYERS = 3; // NOTE: This is set to 1 for testing; should be 3 in prod
 const ACRO_ROUND_TIME = 60; // seconds
 const VOTE_ROUND_TIME = 30; // seconds
+
+const ACRONYM_LENGTH_RANGE = 4;
+const ACRONYM_LENGTH_MIN = 3;
 
 /**
  * A `Round` is a single game of Acronymio. It holds all data requires to run the game,
@@ -63,9 +66,9 @@ export class Round {
   }
 
   getReadyPlayerNames(): string[] {
-    return this.#players.filter((p) => p.isReadyToPlay()).map((p) =>
-      p.getName()
-    );
+    return this.#players
+      .filter((p) => p.isReadyToPlay())
+      .map((p) => p.getName());
   }
 
   getAllEntries(): Entry[] {
@@ -78,7 +81,7 @@ export class Round {
 
   checkForReadyGame(readyPlayerThreshold: number): boolean {
     const readyPlayerCount = this.#players.reduce(
-      (prev, curr) => curr.isReadyToPlay() ? prev + 1 : prev,
+      (prev, curr) => (curr.isReadyToPlay() ? prev + 1 : prev),
       0,
     );
 
@@ -102,8 +105,10 @@ export class Round {
   }
 
   beginRound() {
-    // TODO: Generate acronym
-    const acronym = ['S', 'E', 'B', 'T'];
+    const acroLength = Math.floor(
+      Math.random() * ACRONYM_LENGTH_RANGE + ACRONYM_LENGTH_MIN,
+    );
+    const acronym = generateAcronym(acroLength);
 
     for (const player of this.#players) {
       const msg: ServerBeginGameMessage = {
@@ -150,8 +155,8 @@ export class Round {
 
     const voteArray = Object.entries(votes);
     const winningEntry = maxBy(voteArray, (v) => v[1]);
-    const winningPlayer = this.#players.find((p) =>
-      p.getId() === winningEntry![0]
+    const winningPlayer = this.#players.find(
+      (p) => p.getId() === winningEntry![0],
     );
 
     const msg: ServerWinnerMessage = {
@@ -188,8 +193,8 @@ export class Round {
         }
 
         // check if all entries are in
-        const receivedAllEntries = this.#players.every((p) =>
-          p.getSubmission().length > 0
+        const receivedAllEntries = this.#players.every(
+          (p) => p.getSubmission().length > 0,
         );
         if (receivedAllEntries) {
           clearInterval(this.#roundTimer);
