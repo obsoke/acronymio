@@ -1,8 +1,5 @@
-# Based on https://github.com/denoland/deno_docker/blob/main/alpine.dockerfile
-
-ARG DENO_VERSION=1.37.2
-ARG BIN_IMAGE=denoland/deno:bin-${DENO_VERSION}
-FROM ${BIN_IMAGE} AS bin
+ARG DENO_VERSION=1.38.4
+FROM denoland/deno:bin-${DENO_VERSION} AS bin
 
 FROM frolvlad/alpine-glibc:alpine-3.13
 
@@ -24,4 +21,4 @@ WORKDIR /deno-dir
 COPY . .
 
 ENTRYPOINT ["/bin/deno"]
-CMD ["run", "--allow-net", "https://deno.land/std/examples/echo_server.ts"]
+CMD ["run", "--allow-net", "./src/main.ts"]
