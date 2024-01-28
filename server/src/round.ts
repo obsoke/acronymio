@@ -1,12 +1,12 @@
-import { maxBy } from 'std/collections/max_by.ts';
-import { Player } from './player.ts';
+import { maxBy } from "../deps.ts";
+import { Player } from "./player.ts";
 import {
   ServerBeginGameMessage,
   ServerBeginVotingMessage,
   ServerUpdateTimerMessage,
   ServerWinnerMessage,
-} from './message.ts';
-import { generateAcronym } from './acronym.ts';
+} from "./message.ts";
+import { generateAcronym } from "./acronym.ts";
 
 /*
  * What are the game states?
@@ -21,7 +21,7 @@ import { generateAcronym } from './acronym.ts';
  *
  * gameover: the winner is revealed, the game has concluded!
  */
-export type GameState = 'waiting' | 'acronym' | 'voting' | 'gameover';
+export type GameState = "waiting" | "acronym" | "voting" | "gameover";
 
 export type Entry = { uuid: string; entry: string };
 
@@ -40,7 +40,7 @@ const ACRONYM_LENGTH_MIN = 3;
  * transitions between states and deals with messages from/to players.
  */
 export class Round {
-  #state: GameState = 'waiting';
+  #state: GameState = "waiting";
   #players: Player[] = [];
   #roundTimer = 0;
   #roundTime = 0;
@@ -50,7 +50,7 @@ export class Round {
   }
 
   resetRound() {
-    this.#state = 'waiting';
+    this.#state = "waiting";
   }
 
   addPlayer(player: Player) {
@@ -95,7 +95,7 @@ export class Round {
 
       for (const player of this.#players) {
         const msg: ServerUpdateTimerMessage = {
-          type: 'updateTimer',
+          type: "updateTimer",
           time: this.#roundTime,
         };
 
@@ -112,7 +112,7 @@ export class Round {
 
     for (const player of this.#players) {
       const msg: ServerBeginGameMessage = {
-        type: 'gameStart',
+        type: "gameStart",
         acronym,
         timeLeft: ACRO_ROUND_TIME,
       };
@@ -121,7 +121,7 @@ export class Round {
     }
 
     this.startTimer(ACRO_ROUND_TIME);
-    this.#state = 'acronym';
+    this.#state = "acronym";
   }
 
   beginVoting() {
@@ -129,7 +129,7 @@ export class Round {
     const allEntries = this.getAllEntries();
     for (const player of this.#players) {
       const msg: ServerBeginVotingMessage = {
-        type: 'beginVoting',
+        type: "beginVoting",
         entries: allEntries.filter((e) => e.uuid !== player.getId()),
         timeLeft: ACRO_ROUND_TIME,
       };
@@ -138,20 +138,23 @@ export class Round {
     }
 
     this.startTimer(VOTE_ROUND_TIME);
-    this.#state = 'voting';
+    this.#state = "voting";
   }
 
   findWinner() {
-    const votes = this.#players.reduce((results, player) => {
-      const id = player.getVote();
-      if (!results[id]) {
-        results[id] = 0;
-      }
+    const votes = this.#players.reduce(
+      (results, player) => {
+        const id = player.getVote();
+        if (!results[id]) {
+          results[id] = 0;
+        }
 
-      results[id] += 1;
+        results[id] += 1;
 
-      return results;
-    }, {} as Record<string, number>);
+        return results;
+      },
+      {} as Record<string, number>,
+    );
 
     const voteArray = Object.entries(votes);
     const winningEntry = maxBy(voteArray, (v) => v[1]);
@@ -160,7 +163,7 @@ export class Round {
     );
 
     const msg: ServerWinnerMessage = {
-      type: 'winner',
+      type: "winner",
       winner: winningPlayer!.getName(),
     };
 
@@ -168,24 +171,24 @@ export class Round {
       player.sendMessage(msg);
     }
 
-    this.#state = 'gameover';
+    this.#state = "gameover";
   }
 
   gameLoop() {
     switch (this.getCurrentState()) {
-      case 'waiting':
+      case "waiting":
         // DEBUG OUTPUT
-        console.log(`Currently connected players: ${this.getPlayerCount()}`);
-        for (const player of this.getReadyPlayerNames()) {
-          console.log(player);
-        }
+        // console.log(`Currently connected players: ${this.getPlayerCount()}`);
+        // for (const player of this.getReadyPlayerNames()) {
+        //   console.log(player);
+        // }
         // DEBUG OUTPUT
 
         if (this.checkForReadyGame(NUM_READY_PLAYERS)) {
           this.beginRound();
         }
         break;
-      case 'acronym': {
+      case "acronym": {
         // check if round is over via timer
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
@@ -202,7 +205,7 @@ export class Round {
         }
         break;
       }
-      case 'voting': {
+      case "voting": {
         // check if round is over via timer
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
@@ -216,7 +219,7 @@ export class Round {
         }
         break;
       }
-      case 'gameover':
+      case "gameover":
         // Nothing to do in this state!
         // TODO: Shutdown room/game
         break;

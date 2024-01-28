@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://127.0.0.1:8080");
+const socket = new WebSocket("ws://localhost:8080");
 //const socket = new WebSocket("wss://acroserver.fly.dev");
 
 socket.addEventListener("open", (_) => {
@@ -33,7 +33,6 @@ function processServerMessage(data) {
   } catch (e) {
     console.error(">> UNABLE TO PARSE DATA INTO MSG: ", data, e);
   }
-  const msg = JSON.parse(data);
 }
 
 // CONNECTION STATE - ENTER A NAME

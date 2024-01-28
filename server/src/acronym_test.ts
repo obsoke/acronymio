@@ -1,6 +1,5 @@
-import { generateAcronym } from './acronym.ts';
-import { assertEquals } from 'std/assert/mod.ts';
-import { distinct } from 'std/collections/mod.ts';
+import { generateAcronym } from "./acronym.ts";
+import { assertEquals, distinct } from "../deps.ts";
 
 Deno.test(function testLength() {
   const acronym = generateAcronym(3);

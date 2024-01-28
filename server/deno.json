@@ -1,4 +1,6 @@
 {
+  "deno.enable": true,
+  "deno.lint": true,
   "tasks": {
     "dev": "deno run --watch src/main.ts"
   },
@@ -8,8 +10,5 @@
   },
   "lint": {
     "include": ["src/"]
-  },
-  "imports": {
-    "std/": "https://deno.land/std@0.204.0/"
   }
 }
