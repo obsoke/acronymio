@@ -30,7 +30,7 @@ function startWebSocketServer() {
     });
     socket.addEventListener("close", (_ev) => {
       console.log(
-        `>> CLIENT ${info.remoteAddr.hostname} + ${uuid} HAS DISCONNECTED`,
+        `>> CLIENT ${hostname} + ${uuid} HAS DISCONNECTED`,
       );
       round.removePlayer(uuid);
 
