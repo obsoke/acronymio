@@ -1,8 +1,5 @@
 # Main Tasks
 
-- [ ] Dev. changes to make life easier
-  - [ ] Backend needs a volume mount
-  - [ ] Deno should restart when a file changes
 - [ ] Development mode
   - [ ] WebSocket test client
       - Prompt user for number of clients to connect to server
@@ -33,3 +30,6 @@
   - [X] For client, look at the [nginx Dockerfile docs](https://hub.docker.com/_/nginx)
   - [X] For server, look at the [Deno Dockerfile docs](https://github.com/denoland/deno_docker)
   - [X] Set up Docker Compose to bring up stack easily
+- [X] Dev. changes to make life easier
+  - [X] Backend needs a volume mount
+  - [X] Deno should restart when a file changes
