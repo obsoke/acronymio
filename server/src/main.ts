@@ -43,8 +43,10 @@ function startWebSocketServer() {
     socket.addEventListener("message", (_ev) => {
       processMessage(_ev.data, player);
     });
-    socket.addEventListener("error", (_ev) => {
-      console.log(">> ERROR");
+    socket.addEventListener("error", (ev) => {
+      // TODO: Why isn't `ev` just `ErrorEvent`?
+      const e = ev as ErrorEvent;
+      console.log(">> ERROR: " + e.message);
     });
 
     return response;
