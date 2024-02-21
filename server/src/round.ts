@@ -1,12 +1,14 @@
-import { maxBy } from "../deps.ts";
-import { Player } from "./player.ts";
+import { maxBy, partition } from '../deps.ts';
+import { Player } from './player.ts';
 import {
   ServerBeginGameMessage,
   ServerBeginVotingMessage,
+  ServerDisconnectUserMessage,
   ServerUpdateTimerMessage,
+  ServerUserKickedMessage,
   ServerWinnerMessage,
-} from "./message.ts";
-import { generateAcronym } from "./acronym.ts";
+} from './message.ts';
+import { generateAcronym } from './acronym.ts';
 
 /*
  * What are the game states?
@@ -21,7 +23,7 @@ import { generateAcronym } from "./acronym.ts";
  *
  * gameover: the winner is revealed, the game has concluded!
  */
-export type GameState = "waiting" | "acronym" | "voting" | "gameover";
+export type GameState = 'waiting' | 'acronym' | 'voting' | 'gameover';
 
 export type Entry = { uuid: string; entry: string };
 
@@ -40,7 +42,7 @@ const ACRONYM_LENGTH_MIN = 3;
  * transitions between states and deals with messages from/to players.
  */
 export class Round {
-  #state: GameState = "waiting";
+  #state: GameState = 'waiting';
   #players: Player[] = [];
   #roundTimer = 0;
   #roundTime = 0;
@@ -50,7 +52,7 @@ export class Round {
   }
 
   resetRound() {
-    this.#state = "waiting";
+    this.#state = 'waiting';
   }
 
   addPlayer(player: Player) {
@@ -88,6 +90,10 @@ export class Round {
     return readyPlayerCount >= readyPlayerThreshold;
   }
 
+  canGameContinue(): boolean {
+    return this.#players.length >= NUM_READY_PLAYERS;
+  }
+
   startTimer(initialTime: number) {
     this.#roundTime = initialTime;
     this.#roundTimer = setInterval(() => {
@@ -95,7 +101,7 @@ export class Round {
 
       for (const player of this.#players) {
         const msg: ServerUpdateTimerMessage = {
-          type: "updateTimer",
+          type: 'updateTimer',
           time: this.#roundTime,
         };
 
@@ -112,7 +118,7 @@ export class Round {
 
     for (const player of this.#players) {
       const msg: ServerBeginGameMessage = {
-        type: "gameStart",
+        type: 'gameStart',
         acronym,
         timeLeft: ACRO_ROUND_TIME,
       };
@@ -121,7 +127,44 @@ export class Round {
     }
 
     this.startTimer(ACRO_ROUND_TIME);
-    this.#state = "acronym";
+    this.#state = 'acronym';
+  }
+
+  checkAcroEntries() {
+    const [usersWithoutEntry, usersWithEntry] = partition(
+      this.#players,
+      (p) => p.getSubmission().length === 0,
+    );
+    const kickedUsernames = [];
+    for (const player of usersWithoutEntry) {
+      const msg: ServerDisconnectUserMessage = {
+        type: 'disconnect',
+        reason: 'No acronym was submitted.',
+      };
+      player.sendMessage(msg);
+
+      kickedUsernames.push(player.getName());
+
+      this.removePlayer(player.getId());
+    }
+
+    // If anyone was kicked, send a message to other users saying so.
+    if (kickedUsernames.length) {
+      const kickedMessages: ServerUserKickedMessage[] = kickedUsernames.map(
+        (username) => ({
+          type: 'userKicked',
+          username,
+          reason: 'No acronym submitted.',
+        }),
+      );
+      for (const player of usersWithEntry) {
+        for (const msg of kickedMessages) {
+          player.sendMessage(msg);
+        }
+      }
+    }
+
+    // TODO: Can the game still continue?
   }
 
   beginVoting() {
@@ -129,7 +172,7 @@ export class Round {
     const allEntries = this.getAllEntries();
     for (const player of this.#players) {
       const msg: ServerBeginVotingMessage = {
-        type: "beginVoting",
+        type: 'beginVoting',
         entries: allEntries.filter((e) => e.uuid !== player.getId()),
         timeLeft: ACRO_ROUND_TIME,
       };
@@ -138,7 +181,7 @@ export class Round {
     }
 
     this.startTimer(VOTE_ROUND_TIME);
-    this.#state = "voting";
+    this.#state = 'voting';
   }
 
   findWinner() {
@@ -163,7 +206,7 @@ export class Round {
     );
 
     const msg: ServerWinnerMessage = {
-      type: "winner",
+      type: 'winner',
       winner: winningPlayer!.getName(),
     };
 
@@ -171,12 +214,12 @@ export class Round {
       player.sendMessage(msg);
     }
 
-    this.#state = "gameover";
+    this.#state = 'gameover';
   }
 
   gameLoop() {
     switch (this.getCurrentState()) {
-      case "waiting":
+      case 'waiting':
         // DEBUG OUTPUT
         // console.log(`Currently connected players: ${this.getPlayerCount()}`);
         // for (const player of this.getReadyPlayerNames()) {
@@ -188,10 +231,15 @@ export class Round {
           this.beginRound();
         }
         break;
-      case "acronym": {
+      case 'acronym': {
         // check if round is over via timer
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
+          this.checkAcroEntries();
+          if (!this.canGameContinue()) {
+            this.#state = 'gameover';
+            break;
+          }
           this.beginVoting();
         }
 
@@ -199,13 +247,15 @@ export class Round {
         const receivedAllEntries = this.#players.every(
           (p) => p.getSubmission().length > 0,
         );
+        // NOTE: This *might* be false if someone plays but does not submit an answer
+        // TODO: We might need a way to 'drop' players from the game from the server here
         if (receivedAllEntries) {
           clearInterval(this.#roundTimer);
           this.beginVoting();
         }
         break;
       }
-      case "voting": {
+      case 'voting': {
         // check if round is over via timer
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
@@ -219,11 +269,12 @@ export class Round {
         }
         break;
       }
-      case "gameover":
-        // Nothing to do in this state!
+      case 'gameover':
+        console.log('game over!');
         // TODO: Shutdown room/game
         break;
       default:
+        console.error('in unknown state');
         break;
     }
   }

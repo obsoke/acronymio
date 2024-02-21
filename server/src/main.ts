@@ -12,7 +12,6 @@ const round = new Round();
 
 function startWebSocketServer() {
   Deno.serve({ port: 8080, hostname: "0.0.0.0" }, (req, info) => {
-    console.log(">> REQUEST RECEIVED");
     if (req.headers.get("upgrade") != "websocket") {
       return new Response(null, { status: 501 });
     }

@@ -2,7 +2,7 @@
   "deno.enable": true,
   "deno.lint": true,
   "tasks": {
-    "dev": "deno run --watch src/main.ts"
+    "dev": "deno run --watch src/main.ts",
     "bot": "deno run --allow-net --unstable-temporal bot/index.ts"
   },
   "fmt": {
