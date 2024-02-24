@@ -21,9 +21,10 @@ export class Manager {
     setInterval(() => {
       const areBotsDone = this.#bots.every((b) => b.getState() === 'done');
       if (areBotsDone) {
-        console.log('[MANAGER!] Done!');
+        this.#log('Done!');
         Deno.exit(0);
       }
+
       switch (this.#state) {
         case 'connecting':
           // In the 'connecting' state, we are both waiting for the bots to connect
@@ -51,16 +52,19 @@ export class Manager {
   }
 
   #changeState(nextState: ManagerState) {
+    this.#log(`Moving to ${nextState} state`);
+    this.#state = nextState;
+  }
+
+  #log(msg: string) {
     const since = Temporal.Now.instant().since(this.#startTime);
     console.log(
-      `[MANAGER!] Moving to "${nextState}" phase (${
+      `[MANAGER!] ${msg} (${
         since.toLocaleString('en-US', {
           day: 'numeric',
           hour: 'numeric',
         })
       })`,
     );
-
-    this.#state = nextState;
   }
 }

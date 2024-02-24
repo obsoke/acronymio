@@ -44,8 +44,8 @@ const ACRONYM_LENGTH_MIN = 3;
 export class Round {
   #state: GameState = 'waiting';
   #players: Player[] = [];
-  #roundTimer = 0;
-  #roundTime = 0;
+  #roundTimer = 0; // Interval ID
+  #roundTime = 0; // Time for round
 
   getCurrentState(): GameState {
     return this.#state;
@@ -53,6 +53,9 @@ export class Round {
 
   resetRound() {
     this.#state = 'waiting';
+    this.#players = [];
+    this.#roundTime = 0;
+    clearInterval(this.#roundTimer);
   }
 
   addPlayer(player: Player) {
@@ -233,6 +236,7 @@ export class Round {
         break;
       case 'acronym': {
         // check if round is over via timer
+        console.log('Acronym round time remaining: ' + this.#roundTime);
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
           this.checkAcroEntries();

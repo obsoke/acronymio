@@ -16,7 +16,7 @@ export class AcroBot {
   #id: string = crypto.randomUUID().split('-')[0];
   #state: BotState = 'connecting';
   #socket: WebSocket;
-  #actInternval: number;
+  #actDelay: number;
 
   constructor() {
     this.#socket = new WebSocket('ws://localhost:8080');
@@ -26,7 +26,8 @@ export class AcroBot {
     this.#socket.addEventListener('error', this.onSocketError.bind(this));
 
     // Delay actions between 0.5 & 3.5 seconds
-    this.#actInternval = Math.floor((0.5 + Math.random()) * 3.5);
+    this.#actDelay = (0.5 + Math.random()) * 3.5;
+    this.log(`interval: ${this.#actDelay}`);
   }
 
   onConnect() {
@@ -41,8 +42,9 @@ export class AcroBot {
 
   act(msg: ClientMessages) {
     setTimeout(() => {
+      this.log(`ACTing with type ${msg.type}`);
       this.sendMessage(msg);
-    }, this.#actInternval);
+    }, this.#actDelay);
   }
 
   sendMessage(msg: unknown) {
