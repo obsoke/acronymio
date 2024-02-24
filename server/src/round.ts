@@ -30,8 +30,8 @@ export type Entry = { uuid: string; entry: string };
 type Votes = Record<string, number>;
 
 // Game constants
-const NUM_READY_PLAYERS = 3; // NOTE: This is set to 1 for testing; should be 3 in prod
-const ACRO_ROUND_TIME = 60; // seconds
+const NUM_READY_PLAYERS = 3; // TODO: Should be 3 in prod
+const ACRO_ROUND_TIME = 30; // TODO: Should be 60 in prod
 const VOTE_ROUND_TIME = 30; // seconds
 
 const ACRONYM_LENGTH_RANGE = 4;

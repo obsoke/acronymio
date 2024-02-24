@@ -23,6 +23,7 @@ export class AcroBot {
 
     this.#socket.addEventListener('open', this.onConnect.bind(this));
     this.#socket.addEventListener('message', this.onMessage.bind(this));
+    this.#socket.addEventListener('error', this.onSocketError.bind(this));
 
     // Delay actions between 0.5 & 3.5 seconds
     this.#actInternval = Math.floor((0.5 + Math.random()) * 3.5);
@@ -31,6 +32,11 @@ export class AcroBot {
   onConnect() {
     this.#state = 'setName';
     this.setName();
+  }
+
+  onSocketError(event: Event) {
+    this.#state = 'done';
+    this.log('Socket error occured; shutting down bot.');
   }
 
   act(msg: ClientMessages) {
@@ -87,8 +93,9 @@ export class AcroBot {
         break;
       case 'disconnect':
         // The user has been disconnected from the game for a reason
-        // TODO: Anything to do here?
+        this.#state = 'done';
         this.log(`disconnected because: ${resp.reason}`);
+        break;
       case 'userKicked':
       // The user has been disqualified or kicked from the game
       //? How is this different from `disconnect`?
