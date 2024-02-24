@@ -63,6 +63,7 @@ export type ServerWinnerMessage = {
 
 export type ServerEndGameMessage = {
   type: 'gameover';
+  message: string;
 };
 
 /**

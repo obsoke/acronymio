@@ -46,7 +46,7 @@ function startWebSocketServer() {
     socket.addEventListener('error', (ev) => {
       //?: Why isn't `ev` just `ErrorEvent`?
       const e = ev as ErrorEvent;
-      console.log('>> ERROR: ' + e.message);
+      console.error('>> ERROR: ' + e.message);
     });
 
     return response;

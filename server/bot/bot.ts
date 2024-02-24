@@ -2,6 +2,7 @@ import { rword } from 'npm:rword';
 import {
   ClientMessages,
   ClientSetNameMessage,
+  ClientSubmitAcronymMessage,
   ServerMessages,
 } from '../src/message.ts';
 export type BotState = 'connecting' | 'setName' | 'acronym' | 'vote' | 'done';
@@ -70,10 +71,12 @@ export class AcroBot {
       case 'gameStart':
         // Game begins in acronym round, expects a `submitAcronym` msg
         this.log(`Acronym received: ${resp.acronym.join(' ')}`);
+        // TODO: Generate & submit acronym
+        this.generateEntry(resp.acronym);
         break;
       case 'entryReceived':
         // Acro submission submitted; waiting for next phase
-        // TODO: Anything to do here?
+        this.log('Server received acronym submission.');
         break;
       case 'beginVoting':
         // Voting round has begun
@@ -87,11 +90,11 @@ export class AcroBot {
         // We don't need to react to the server timer
         break;
       case 'winner':
-        // A winner has been decided; effectively a game over.
-        // TODO: Anything to do here?
-        break;
       case 'gameover':
         //? Is this state really necessary to have? Or maybe it should be renamed?
+        this.log('Received game over');
+        this.#state = 'done';
+        this.#socket.close();
         break;
       case 'disconnect':
         // The user has been disconnected from the game for a reason
@@ -112,6 +115,24 @@ export class AcroBot {
     const msg: ClientSetNameMessage = {
       type: 'setName',
       name,
+    };
+
+    this.act(msg);
+  }
+
+  generateEntry(acronym: string[]) {
+    const results = [];
+    for (const letter of acronym) {
+      const entry = rword.generate(1, {
+        contains: new RegExp(`^${letter}`, 'i'),
+        capitalize: 'first',
+      });
+      results.push(entry);
+    }
+
+    const msg: ClientSubmitAcronymMessage = {
+      type: 'submitAcronym',
+      acronym: results,
     };
 
     this.act(msg);

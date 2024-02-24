@@ -32,7 +32,6 @@ export class Manager {
           const doneNames = this.#bots.every((b) => b.getState() === 'acronym');
           if (doneNames) {
             this.#changeState('acronym');
-            // TODO: Start acronym phase
           }
 
           break;
@@ -41,7 +40,6 @@ export class Manager {
           const doneAcro = this.#bots.every((b) => b.getState() === 'vote');
           if (doneAcro) {
             this.#changeState('vote');
-            // TODO: Start vote phase
           }
 
           break;

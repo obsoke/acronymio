@@ -4,6 +4,7 @@ import {
   ServerBeginGameMessage,
   ServerBeginVotingMessage,
   ServerDisconnectUserMessage,
+  ServerEndGameMessage,
   ServerUpdateTimerMessage,
   ServerUserKickedMessage,
   ServerWinnerMessage,
@@ -208,9 +209,21 @@ export class Round {
       (p) => p.getId() === winningEntry![0],
     );
 
+    if (!winningPlayer) {
+      const msg: ServerEndGameMessage = {
+        type: 'gameover',
+        message: 'No one voted',
+      };
+      for (const player of this.#players) {
+        player.sendMessage(msg);
+      }
+      this.#state = 'gameover';
+      return;
+    }
+
     const msg: ServerWinnerMessage = {
       type: 'winner',
-      winner: winningPlayer!.getName(),
+      winner: winningPlayer.getName(),
     };
 
     for (const player of this.#players) {
@@ -261,6 +274,7 @@ export class Round {
       }
       case 'voting': {
         // check if round is over via timer
+        console.log('Vote round time remaining: ' + this.#roundTime);
         if (this.#roundTime <= 0) {
           clearInterval(this.#roundTimer);
           this.findWinner();
