@@ -3,16 +3,12 @@ import {
   ClientMessages,
   ClientSetNameMessage,
   ClientSubmitAcronymMessage,
+  ClientVoteMessage,
   ServerMessages,
 } from '../src/message.ts';
+import type { Entry } from '../src/round.ts';
 export type BotState = 'connecting' | 'setName' | 'acronym' | 'vote' | 'done';
 
-// 1) Create a random interval between 0.5 and 3 seconds to act on each change
-//   1.1) Provide an option to act instantly
-// 2) On each state, do the expected thing:
-//   2.1) `setName`: Come up with a random name
-//   2.2) `acronym`: Generate a random answer for acronyms
-//   2.3) `vote`: Vote for a random entry, provide an option to vote for me
 export class AcroBot {
   #id: string = crypto.randomUUID().split('-')[0];
   #state: BotState = 'connecting';
@@ -69,9 +65,8 @@ export class AcroBot {
         this.#state = 'acronym';
         break;
       case 'gameStart':
-        // Game begins in acronym round, expects a `submitAcronym` msg
+        // Game begins in acronym round, server expects a `submitAcronym` msg
         this.log(`Acronym received: ${resp.acronym.join(' ')}`);
-        // TODO: Generate & submit acronym
         this.generateEntry(resp.acronym);
         break;
       case 'entryReceived':
@@ -81,7 +76,8 @@ export class AcroBot {
       case 'beginVoting':
         // Voting round has begun
         this.#state = 'vote';
-        this.log(`entries: ${JSON.stringify(resp.entries, null, 2)}`);
+        this.vote(resp.entries);
+        break;
       case 'voteReceived':
         // The vote has been received; waiting for next phase
         // TODO: Anything to do here?
@@ -92,7 +88,7 @@ export class AcroBot {
       case 'winner':
       case 'gameover':
         //? Is this state really necessary to have? Or maybe it should be renamed?
-        this.log('Received game over');
+        this.log(`Received game over: ${JSON.stringify(resp)}`);
         this.#state = 'done';
         this.#socket.close();
         break;
@@ -133,6 +129,18 @@ export class AcroBot {
     const msg: ClientSubmitAcronymMessage = {
       type: 'submitAcronym',
       acronym: results,
+    };
+
+    this.act(msg);
+  }
+
+  vote(options: Entry[]) {
+    const winnerIdx = Math.floor(Math.random() * options.length);
+    const winner = options[winnerIdx];
+    this.log(`Voting for ${JSON.stringify(winner)}`);
+    const msg: ClientVoteMessage = {
+      type: 'vote',
+      userVotedFor: winner.uuid,
     };
 
     this.act(msg);

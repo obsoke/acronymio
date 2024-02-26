@@ -1,14 +1,5 @@
 # Main Tasks
 
-- [ ] Development mode / WebSocket test client
-    - Prompt user for number of clients to connect to server
-      - See [Deno's CLI module](https://deno.land/std@0.214.0/cli/mod.ts?s=parseArgs) for an example on parsing CLI arguments
-      - Accept `client=N` as an argument
-      - Spawn N number of clients/"players"
-      - Have players automatically respond to WebSocket events
-        - Set name
-        - Submit acronym
-        - Vote
 - [ ] Design / Frontend Pop
   - [ ] Verify that the flow of the game works
   - [ ] Design screens using Figma
@@ -32,3 +23,12 @@
 - [X] Dev. changes to make life easier
   - [X] Backend needs a volume mount
   - [X] Deno should restart when a file changes
+- [X] Development mode / WebSocket test client
+    - Prompt user for number of clients to connect to server
+      - See [Deno's CLI module](https://deno.land/std@0.214.0/cli/mod.ts?s=parseArgs) for an example on parsing CLI arguments
+      - Accept `client=N` as an argument
+      - Spawn N number of clients/"players"
+      - Have players automatically respond to WebSocket events
+        - Set name
+        - Submit acronym
+        - Vote
