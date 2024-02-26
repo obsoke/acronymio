@@ -61,6 +61,31 @@ export type ServerWinnerMessage = {
   winner: string;
 };
 
+export type ServerEndGameMessage = {
+  type: 'gameover';
+  message: string;
+};
+
+/**
+ * Message to send to a user to signal they have been
+ * disconnected from the game. The game client should
+ * say as much.
+ */
+export type ServerDisconnectUserMessage = {
+  type: 'disconnect';
+  reason: string;
+};
+
+/**
+ * Message to send when a user has been disqualified or
+ * kicked from the game.
+ */
+export type ServerUserKickedMessage = {
+  type: 'userKicked';
+  username: string;
+  reason: string;
+};
+
 export type ServerMessages =
   | ServerSetNameMessage
   | ServerBeginGameMessage
@@ -68,7 +93,10 @@ export type ServerMessages =
   | ServerUpdateTimerMessage
   | ServerBeginVotingMessage
   | ServerVoteReceived
-  | ServerWinnerMessage;
+  | ServerWinnerMessage
+  | ServerDisconnectUserMessage
+  | ServerUserKickedMessage
+  | ServerEndGameMessage;
 
 export function processMessage(data: string, sender: Player) {
   try {
