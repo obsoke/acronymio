@@ -1,0 +1,17 @@
+services:
+  web:
+    image: node:21
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    command: "npm run dev -- --host"
+    volumes:
+      - ./client:/app
+  backend:
+    image: denoland/deno:1.41.1
+    working_dir: /app
+    ports:
+      - "8080:8080"
+    command: "deno run --allow-net --watch ./src/main.ts"
+    volumes:
+      - ./server:/app

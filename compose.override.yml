@@ -1,8 +1,0 @@
-services:
-  web:
-    volumes:
-      - ./client:/usr/share/nginx/html
-  backend:
-    command: 'deno run --allow-net --watch ./src/main.ts'
-    volumes:
-      - ./server:/app
