@@ -1,5 +1,4 @@
-const socket = new WebSocket("ws://localhost:8080");
-//const socket = new WebSocket("wss://acroserver.fly.dev");
+const socket = new WebSocket(import.meta.env.VITE_SOCKET_ADDR);
 
 socket.addEventListener("open", (_) => {
   console.log(">> CONNECTED TO WEB SOCKET");

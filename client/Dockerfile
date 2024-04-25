@@ -1,6 +1,8 @@
 FROM node:21 as build
 WORKDIR /app
 
+ENV VITE_SOCKET_ADDR wss://acroserver.fly.dev
+
 COPY package.json .
 COPY package-lock.json .
 
