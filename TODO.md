@@ -1,18 +1,18 @@
 # Main Tasks
 
-- [ ] Design / Frontend Pop
-  - [ ] Verify that the flow of the game works
-  - [ ] Design screens using Figma
-    - [ ] Submit name
-    - [ ] Waiting for players
-    - [ ] Players joined; generating acronym
-    - [ ] Acronym submission round
-    - [ ] Voting round
-    - [ ] Game over screen
+- [ ] Frontend
+  - [ ] Motion-less design of all screens 
+  - [ ] Split "waitingForEntries" state out from "acronym"
+  - [ ] Create function to check for reduce motion settings
+  - [ ] Use anime.js to make things snazzy
+  - [ ] Room UI
+    - [ ] Show room code at bottom when entering user name
+    - [ ] Allow users to either create a new room or join an existing one via code
+  - [ ] Dark / light mode stylings + toggle
 - [ ] Backend changes
   - [ ] Use structured logging library
   - [ ] Acronym generation improvements
-  - [ ] Support multiple rounds
+  - [ ] Support multiple rooms
 
 # Complete Tasks
 

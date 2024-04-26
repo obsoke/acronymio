@@ -289,7 +289,7 @@ export class Round {
       }
       case 'gameover':
         console.log('game over!');
-        // TODO: Shutdown room/game
+        this.resetRound();
         break;
       default:
         console.error('in unknown state');

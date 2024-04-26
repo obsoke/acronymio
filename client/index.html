@@ -3,59 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Acro-thing</title>
-    <style>
-      .hide {
-        display: none;
-      }
-    </style>
+    <title>Acronymio</title>
   </head>
 
   <body>
     <div id="app">
-      <h1>ACRONYM</h1>
-      <p id="timerContainer" class="hide">
-        TIME REMAINING: <span id="timer"></span>
-      </p>
-      <div id="connect">
-        <h2>CONNECTING TO SERVER...</h2>
-      </div>
-      <div id="name" class="hide">
-        <form>
-          <p>Please enter a username:</p>
-          <input id="usernameInput" type="text" />
-          <button id="submitName" type="submit">Submit</button>
-        </form>
-      </div>
-      <div id="waitingGame" class="hide">
-        <h2>WAITING FOR GAME TO BEGIN...</h2>
-      </div>
-      <div id="acronym" class="hide">
-        <h2>Your acronym is...</h2>
-        <h3 id="acroLetters"></h3>
+      <header>
+        <h1>ACRONYMIO</h1>
+        <h2>It's a game about backronyms, actually</h2>
+        <p id="timerContainer" class="hide">
+          TIME REMAINING: <span id="timer"></span>
+        </p>
+      </header>
+      <div class="gameState">
+        <div id="connect">
+          <h2>CONNECTING TO SERVER...</h2>
+        </div>
+        <div id="name" class="hide">
+          <form>
+            <p>Please enter a username:</p>
+            <input id="usernameInput" type="text" />
+            <button id="submitName" type="submit">Submit</button>
+          </form>
+        </div>
+        <div id="waitingGame" class="hide">
+          <h2>WAITING FOR GAME TO BEGIN...</h2>
+        </div>
+        <div id="acronym" class="hide">
+          <h2>Your acronym is...</h2>
+          <h3 id="acroLetters"></h3>
 
-        <form id="acroSubmitForm">
-          <input
-            id="acronymInput"
-            type="text"
-            placeholder="Enter your expanded acronym!"
-          />
-          <button id="submitEntry" type="submit">Submit entry</button>
-        </form>
-        <div id="waitingForEntries" class="hide">
-          <p>Waiting for all entires to be submitted</p>
-          <p>You submitted: <span id="myEntry"></span></p>
+          <form id="acroSubmitForm">
+            <input
+              id="acronymInput"
+              type="text"
+              placeholder="Enter your expanded acronym!"
+            />
+            <button id="submitEntry" type="submit">Submit entry</button>
+          </form>
+          <div id="waitingForEntries" class="hide">
+            <p>Waiting for all entires to be submitted</p>
+            <p>You submitted: <span id="myEntry"></span></p>
+          </div>
         </div>
-      </div>
-      <div id="voting" class="hide">
-        <h2>Vote for your favourite acronym!</h2>
-        <ul id="entryList"></ul>
-        <div id="waitingForVotes" class="hide">
-          <p>Waiting for all votes to be submitted</p>
+        <div id="voting" class="hide">
+          <h2>Vote for your favourite acronym!</h2>
+          <ul id="entryList"></ul>
+          <div id="waitingForVotes" class="hide">
+            <p>Waiting for all votes to be submitted</p>
+          </div>
         </div>
-      </div>
-      <div id="winner" class="hide">
-        <h2>The winner is <span id="winnerName"></span></h2>
+        <div id="winner" class="hide">
+          <h2>The winner is <span id="winnerName"></span></h2>
+        </div>
       </div>
     </div>
 

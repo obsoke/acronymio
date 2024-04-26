@@ -1,3 +1,5 @@
+import "./style.css";
+
 const socket = new WebSocket(import.meta.env.VITE_SOCKET_ADDR);
 
 socket.addEventListener("open", (_) => {
@@ -76,10 +78,9 @@ function startGame(acroLetters: any, timeLeft: any) {
     e.preventDefault();
 
     // TODO: Client side validation?
-    const acronym = document
-      .querySelector("#acronymInput")
-      ?.getAttribute("value")
-      ?.split(" ");
+    const acronymInput: HTMLInputElement =
+      document.querySelector("input#acronymInput")!;
+    const acronym = acronymInput?.value?.split(" ");
     const msg = {
       type: "submitAcronym",
       acronym,
