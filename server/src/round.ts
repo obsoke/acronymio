@@ -28,11 +28,11 @@ export type GameState = 'waiting' | 'acronym' | 'voting' | 'gameover';
 
 export type Entry = { uuid: string; entry: string };
 
-type Votes = Record<string, number>;
+// type Votes = Record<string, number>;
 
 // Game constants
 const NUM_READY_PLAYERS = 3; // TODO: Should be 3 in prod
-const ACRO_ROUND_TIME = 30; // TODO: Should be 60 in prod
+const ACRO_ROUND_TIME = 60; // TODO: Should be 60 in prod
 const VOTE_ROUND_TIME = 30; // seconds
 
 const ACRONYM_LENGTH_RANGE = 4;
@@ -86,16 +86,14 @@ export class Round {
   }
 
   checkForReadyGame(readyPlayerThreshold: number): boolean {
-    const readyPlayerCount = this.#players.reduce(
-      (prev, curr) => (curr.isReadyToPlay() ? prev + 1 : prev),
-      0,
-    );
+    const readyPlayerCount =
+      this.#players.filter((p) => p.isReadyToPlay()).length;
 
     return readyPlayerCount >= readyPlayerThreshold;
   }
 
   canGameContinue(): boolean {
-    return this.#players.length >= NUM_READY_PLAYERS;
+    return this.getPlayerCount() >= NUM_READY_PLAYERS;
   }
 
   startTimer(initialTime: number) {

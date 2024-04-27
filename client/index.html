@@ -9,17 +9,20 @@
   <body>
     <div id="app">
       <header>
-        <h1>ACRONYMIO</h1>
-        <h2>It's a game about backronyms, actually</h2>
+        <div class="title">
+          <h1>ACRONYMIO</h1>
+          <h2>It's a game about backronyms, actually</h2>
+        </div>
         <p id="timerContainer" class="hide">
           TIME REMAINING: <span id="timer"></span>
         </p>
       </header>
-      <div class="gameState">
+      <section id="game">
         <div id="connect">
           <h2>CONNECTING TO SERVER...</h2>
         </div>
         <div id="name" class="hide">
+          <h3>Welcome to Acronymio!</h3>
           <form>
             <p>Please enter a username:</p>
             <input id="usernameInput" type="text" />
@@ -30,14 +33,14 @@
           <h2>WAITING FOR GAME TO BEGIN...</h2>
         </div>
         <div id="acronym" class="hide">
-          <h2>Your acronym is...</h2>
-          <h3 id="acroLetters"></h3>
+          <h3>Your acronym is...</h3>
+          <h4 id="acroLetters"></h4>
 
           <form id="acroSubmitForm">
             <input
               id="acronymInput"
               type="text"
-              placeholder="Enter your expanded acronym!"
+              placeholder="Enter your backronym!"
             />
             <button id="submitEntry" type="submit">Submit entry</button>
           </form>
@@ -56,7 +59,7 @@
         <div id="winner" class="hide">
           <h2>The winner is <span id="winnerName"></span></h2>
         </div>
-      </div>
+      </section>
     </div>
 
     <script type="module" src="/src/main.ts"></script>
