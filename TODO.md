@@ -5,10 +5,10 @@
   - [ ] Split "waitingForEntries" state out from "acronym"
   - [ ] Create function to check for reduce motion settings
   - [ ] Use anime.js to make things snazzy
-  - [ ] Room UI
+  - [ ] Dark / light mode stylings + toggle
+  - [ ] Room UI (dependent on "Backend changes -> Support multiple rooms")
     - [ ] Show room code at bottom when entering user name
     - [ ] Allow users to either create a new room or join an existing one via code
-  - [ ] Dark / light mode stylings + toggle
 - [ ] Backend changes
   - [ ] Use structured logging library
   - [ ] Acronym generation improvements
